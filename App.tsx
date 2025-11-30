@@ -42,9 +42,9 @@ const App: React.FC = () => {
     }
   }, [loading, businessProfile]);
 
-  if (!session) {
-    return <Auth />;
-  }
+  //  // if (!session) {
+  //   return <Auth />;
+  // }// }
 
   const handleSaveProfile = async (profile: BusinessProfile) => {
     await saveProfile(profile);

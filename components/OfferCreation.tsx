@@ -134,7 +134,6 @@ const OfferCreation: React.FC<Props> = ({ businessProfile, initialOffer, onBack 
         business_name: businessProfile.companyName,
         client_request: clientEmail,
         offer_subject: offer.emailSubject,
-        offer_body: offer.emailBody,
         offer_html: offer.htmlContent,
         timestamp: new Date().toISOString()
       };
