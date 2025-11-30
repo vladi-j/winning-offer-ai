@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BusinessProfile } from '../types';
-import { extractBusinessFacts, auditKnowledgeBase, extractCaseStudies } from '../services/geminiService';
+import { extractBusinessFacts, auditKnowledgeBase, extractCaseStudies } from '../services/anthropicService';
 import { Loader2, Plus, Trash2, Save, Sparkles, GripVertical, Lightbulb, RefreshCw, Briefcase, BookOpen, MessageSquareQuote } from 'lucide-react';
 
 interface Props {
@@ -276,8 +276,8 @@ const BusinessOnboarding: React.FC<Props> = ({ initialProfile, onSave }) => {
             <button
               onClick={() => setActiveTab('knowledge')}
               className={`flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center space-x-2 transition-all ${activeTab === 'knowledge'
-                  ? 'bg-white shadow-sm text-indigo-600'
-                  : 'text-slate-500 hover:text-slate-700'
+                ? 'bg-white shadow-sm text-indigo-600'
+                : 'text-slate-500 hover:text-slate-700'
                 }`}
             >
               <BookOpen size={16} />
@@ -286,8 +286,8 @@ const BusinessOnboarding: React.FC<Props> = ({ initialProfile, onSave }) => {
             <button
               onClick={() => setActiveTab('portfolio')}
               className={`flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center space-x-2 transition-all ${activeTab === 'portfolio'
-                  ? 'bg-white shadow-sm text-purple-600'
-                  : 'text-slate-500 hover:text-slate-700'
+                ? 'bg-white shadow-sm text-purple-600'
+                : 'text-slate-500 hover:text-slate-700'
                 }`}
             >
               <Briefcase size={16} />
@@ -296,8 +296,8 @@ const BusinessOnboarding: React.FC<Props> = ({ initialProfile, onSave }) => {
             <button
               onClick={() => setActiveTab('voice')}
               className={`flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center space-x-2 transition-all ${activeTab === 'voice'
-                  ? 'bg-white shadow-sm text-rose-600'
-                  : 'text-slate-500 hover:text-slate-700'
+                ? 'bg-white shadow-sm text-rose-600'
+                : 'text-slate-500 hover:text-slate-700'
                 }`}
             >
               <MessageSquareQuote size={16} />

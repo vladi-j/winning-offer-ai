@@ -15,7 +15,7 @@ export interface BusinessProfile {
   caseStudies: string[];   // List of past projects, links, and examples
   pastEmails: string[];    // List of past email examples for tone matching
   branding: Branding;
-  isVerified: boolean; 
+  isVerified: boolean;
 }
 
 // AI Analysis Types
@@ -40,6 +40,18 @@ export interface GeneratedOffer {
   emailBody: string;
   missingClientInfo: string[]; // Questions to ask back
   rationale: string;
+  htmlContent?: string;
+}
+
+export interface OfferRecord {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  business_id: string;
+  client_request: string;
+  title: string;
+  offer_data: GeneratedOffer;
+  status: string;
 }
 
 // State Management Types

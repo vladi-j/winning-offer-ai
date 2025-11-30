@@ -4,21 +4,60 @@ import { AppView, BusinessProfile } from './types';
 import Sidebar from './components/Sidebar';
 import BusinessOnboarding from './components/BusinessOnboarding';
 import OfferCreation from './components/OfferCreation';
+import Dashboard from './components/Dashboard';
 import { PlusCircle, History, TrendingUp, Clock, CheckCircle } from 'lucide-react';
+import { OfferRecord } from './types';
+
+import Auth from './components/Auth';
+import { supabase } from './services/supabaseClient';
+import { Session } from '@supabase/supabase-js';
 
 const App: React.FC = () => {
-  const { profile: businessProfile, loading, saveProfile } = useBusinessProfile();
+  const [session, setSession] = useState<Session | null>(null);
+  const { profile: businessProfile, loading, saveProfile, refreshProfile } = useBusinessProfile();
   const [currentView, setCurrentView] = useState<AppView>(AppView.ONBOARDING);
+  const [selectedOffer, setSelectedOffer] = useState<OfferRecord | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) {
+        refreshProfile(); // Refresh profile when user logs in
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Effect to redirect to dashboard if profile exists and we are on onboarding
   useEffect(() => {
     if (!loading && businessProfile && currentView === AppView.ONBOARDING) {
-      setCurrentView(AppView.OFFER_CREATION);
+      setCurrentView(AppView.DASHBOARD);
     }
   }, [loading, businessProfile]);
 
+  if (!session) {
+    return <Auth />;
+  }
+
   const handleSaveProfile = async (profile: BusinessProfile) => {
     await saveProfile(profile);
+    setCurrentView(AppView.DASHBOARD);
+  };
+
+  const handleEditOffer = (offer: OfferRecord) => {
+    setSelectedOffer(offer);
+    setCurrentView(AppView.OFFER_CREATION);
+  };
+
+  const handleCreateNew = () => {
+    setSelectedOffer(null);
     setCurrentView(AppView.OFFER_CREATION);
   };
 
@@ -36,68 +75,13 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (currentView) {
       case AppView.DASHBOARD:
+        if (!businessProfile) return null; // Should not happen due to redirect
         return (
-          <div className="p-8 h-full overflow-y-auto no-scrollbar">
-            <h1 className="text-3xl font-bold text-slate-800 mb-2">Dashboard</h1>
-            <p className="text-slate-500 mb-8 font-medium">Overview of your AI sales performance</p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              {/* Glass Stat Cards */}
-              <div className="bg-white/40 backdrop-blur-xl border border-white/50 p-6 rounded-3xl shadow-lg hover:bg-white/50 transition-all">
-                <div className="flex items-center space-x-3 mb-2">
-                  <div className="p-2 bg-blue-100/50 rounded-xl text-blue-600">
-                    <CheckCircle size={20} />
-                  </div>
-                  <h3 className="text-slate-600 text-sm font-semibold">Offers Generated</h3>
-                </div>
-                <p className="text-4xl font-bold text-slate-800 mt-2">12</p>
-              </div>
-              <div className="bg-white/40 backdrop-blur-xl border border-white/50 p-6 rounded-3xl shadow-lg hover:bg-white/50 transition-all">
-                <div className="flex items-center space-x-3 mb-2">
-                  <div className="p-2 bg-indigo-100/50 rounded-xl text-indigo-600">
-                    <Clock size={20} />
-                  </div>
-                  <h3 className="text-slate-600 text-sm font-semibold">Time Saved</h3>
-                </div>
-                <p className="text-4xl font-bold text-slate-800 mt-2">48h</p>
-              </div>
-              <div className="bg-white/40 backdrop-blur-xl border border-white/50 p-6 rounded-3xl shadow-lg hover:bg-white/50 transition-all">
-                <div className="flex items-center space-x-3 mb-2">
-                  <div className="p-2 bg-emerald-100/50 rounded-xl text-emerald-600">
-                    <TrendingUp size={20} />
-                  </div>
-                  <h3 className="text-slate-600 text-sm font-semibold">Conversion Rate</h3>
-                </div>
-                <p className="text-4xl font-bold text-slate-800 mt-2">64%</p>
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <h2 className="text-xl font-bold text-slate-800 mb-4">Recent Activity</h2>
-              <div className="bg-white/40 backdrop-blur-xl border border-white/50 rounded-3xl shadow-lg overflow-hidden divide-y divide-white/40">
-                <div className="p-5 flex items-center justify-between hover:bg-white/40 transition-colors cursor-pointer group">
-                  <div className="flex items-center space-x-4">
-                    <div className="bg-white/60 p-3 rounded-2xl text-indigo-600 shadow-sm"><History size={20} /></div>
-                    <div>
-                      <p className="font-bold text-slate-800 group-hover:text-indigo-700 transition-colors">Offer for TechCorp Inc.</p>
-                      <p className="text-sm text-slate-500">Sent 2 hours ago • $12,500 value</p>
-                    </div>
-                  </div>
-                  <span className="text-xs bg-white/60 text-slate-600 px-3 py-1.5 rounded-full font-medium shadow-sm">View Details</span>
-                </div>
-                <div className="p-5 flex items-center justify-between hover:bg-white/40 transition-colors cursor-pointer group">
-                  <div className="flex items-center space-x-4">
-                    <div className="bg-white/60 p-3 rounded-2xl text-indigo-600 shadow-sm"><History size={20} /></div>
-                    <div>
-                      <p className="font-bold text-slate-800 group-hover:text-indigo-700 transition-colors">Proposal for Local Logistics</p>
-                      <p className="text-sm text-slate-500">Sent yesterday • Waiting response</p>
-                    </div>
-                  </div>
-                  <span className="text-xs bg-white/60 text-slate-600 px-3 py-1.5 rounded-full font-medium shadow-sm">View Details</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <Dashboard
+            businessProfile={businessProfile}
+            onEditOffer={handleEditOffer}
+            onCreateNew={handleCreateNew}
+          />
         );
       case AppView.ONBOARDING:
         return (
@@ -137,11 +121,15 @@ const App: React.FC = () => {
         return (
           <div className="h-full flex flex-col p-6 overflow-hidden">
             <div className="mb-4 shrink-0">
-              <h1 className="text-2xl font-bold text-slate-800">Create New Offer</h1>
+              <h1 className="text-2xl font-bold text-slate-800">{selectedOffer ? 'Edit Offer' : 'Create New Offer'}</h1>
               <p className="text-slate-500 font-medium">AI-Assisted drafting based on your business profile.</p>
             </div>
             <div className="flex-1 overflow-hidden">
-              <OfferCreation businessProfile={businessProfile} />
+              <OfferCreation
+                businessProfile={businessProfile}
+                initialOffer={selectedOffer}
+                onBack={() => setCurrentView(AppView.DASHBOARD)}
+              />
             </div>
           </div>
         );
