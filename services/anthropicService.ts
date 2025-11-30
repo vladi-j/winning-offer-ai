@@ -17,8 +17,8 @@ async function callClaude(system: string, user: string, jsonMode = false): Promi
     };
 
     const body = {
-        model: "claude-3-5-sonnet-20240620",
-        max_tokens: 20000,
+        model: "claude-sonnet-4-5",
+        max_tokens: 8192,
         system: system,
         messages: [
             { role: "user", content: user }
@@ -173,24 +173,14 @@ export const generateHtmlEmail = async (
     const system = `
     You are an Expert Email Developer.
     Convert the email text into a responsive HTML email template.
-    
-    Design Requirements:
-    - Use a modern, clean layout (single column preferred for best compatibility).
-    - Brand Color: ${business.branding.primaryColor}.
-    - Font: ${business.branding.fontName}, with a fallback to sans-serif.
-    - Use inline CSS for compatibility with all email clients (Gmail, Outlook, etc.).
-    - Ensure the HTML is FULLY COMPLETE, valid, and properly closed (</html>).
-    - Do not truncate the content.
-    - Add a subtle footer with the company name.
-    
-    Return ONLY raw HTML code. Do not include markdown fences or explanations.
+    Brand Color: ${business.branding.primaryColor}.
+    Font: ${business.branding.fontName}.
+    Return ONLY raw HTML.
   `;
 
     const prompt = `
     Subject: ${offer.emailSubject}
-    
-    Content to Convert:
-    ${offer.emailBody}
+    Body: ${offer.emailBody}
   `;
 
     const result = await callClaude(system, prompt);
